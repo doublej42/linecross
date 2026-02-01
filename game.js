@@ -25,6 +25,7 @@ class GameScene extends Phaser.Scene {
         this.edges = []; // Array to hold edge connections between orbs
         this.selectedOrb = null; // Currently selected orb for swapping
         this.isAnimating = false; // Flag to prevent actions during animation
+        this.solved = false; // Flag to indicate if puzzle is solved
 
         // Generate graph and place orbs, ensuring initial layout has crossings
         this.generateGraph(); // Create the graph structure
@@ -171,6 +172,7 @@ class GameScene extends Phaser.Scene {
 
     // Handles clicking on orbs for selection and swapping
     onOrbClick(pointer, gameObject) {
+        if (this.solved) return; // Prevent actions after solved
         if (this.isAnimating) return; // Prevent actions during animation
         console.log("Orb clicked: ", gameObject.orb);
         if (this.selectedOrb === null) {
@@ -201,7 +203,10 @@ class GameScene extends Phaser.Scene {
                     this.isAnimating = false;
                     // Check if puzzle is solved (no crossings)
                     if (this.countCrossings() === 0) {
-                        this.add.text(400, 300, 'Solved!', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
+                        this.solved = true;
+                        const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
+                        solvedText.setDepth(10); // Above all
+                        this.input.on('pointerdown', () => window.restartGame(), this);
                     }
                     this.updateOrbs(); // Update orb colors based on new crossing status
                     this.updateLines(); // Update line colors based on crossing status
