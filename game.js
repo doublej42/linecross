@@ -11,7 +11,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('flame', 'images/FlameMask110.png');
         this.load.image('nonflame', 'images/NonFlameMask110.png');
         // Load line sprite sheet
-        this.load.spritesheet('lines', 'images/sprite-sheet.png', { frameWidth: 488, frameHeight: 40 });
+        this.load.spritesheet('lines', 'images/sprite-sheet2.png', { frameWidth: 488, frameHeight: 20 });
     }
 
     // Create method - initializes the game scene
@@ -46,7 +46,7 @@ class GameScene extends Phaser.Scene {
         this.anims.create({
             key: 'lineAnim',
             frames: this.anims.generateFrameNumbers('lines', { start: 0, end: 36 }),
-            frameRate: 16.67,
+            frameRate: 15,
             repeat: -1
         });
 
@@ -110,9 +110,10 @@ class GameScene extends Phaser.Scene {
 
     // Places orbs randomly on the screen, ensuring minimum distance between them
     placeOrbs() {
-        const width = this.sys.game.config.width; // Game canvas width
-        const height = this.sys.game.config.height; // Game canvas height
+        const width = this.scale.width; // Current display width
+        const height = this.scale.height; // Current display height
         const margin = 50; // Margin from edges
+        console.log("Placing orbs within area: " + width + "x" + height);
         // Place each orb at a random position, ensuring minimum distance from already placed orbs
         this.orbs.forEach((orb, i) => {
             let x, y, attempts = 0;
@@ -362,8 +363,10 @@ class GameScene extends Phaser.Scene {
 // Phaser game configuration
 const config = {
     type: Phaser.AUTO, // Automatically choose renderer (WebGL or Canvas)
-    width: 800, // Game width
-    height: 600, // Game height
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     scene: GameScene, // Main scene class
     parent: 'game-container' // HTML element to attach to
 };
