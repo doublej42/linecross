@@ -147,12 +147,13 @@ class GameScene extends Phaser.Scene {
             } else {
                 this.graphics.lineStyle(2, 0xff0000); // Set line style: 2px width, red color for normal
             }
-            edge.graphics = this.graphics.lineBetween(orbA.x, orbA.y, orbB.x, orbB.y);
+            this.graphics.lineBetween(orbA.x, orbA.y, orbB.x, orbB.y);
         }
     }
 
     // Handles clicking on orbs for selection and swapping
     onOrbClick(pointer, gameObject) {
+        console.log("Orb clicked: ", gameObject.orb);
         if (this.selectedOrb === null) {
             // No orb selected: select this one
             this.selectedOrb = gameObject.orb;
@@ -169,13 +170,14 @@ class GameScene extends Phaser.Scene {
             // Deselect and reset color
             this.selectedOrb.sprite.setFillStyle(0x00ff00);
             this.selectedOrb = null;
-            this.updateOrbColors(); // Update orb colors based on new crossing status
-            this.updateLines(); // Update line colors based on crossing status
+            
 
             // Check if puzzle is solved (no crossings)
             if (this.countCrossings() === 0 ) {
                 this.add.text(400, 300, 'Solved!', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
             }
+            this.updateOrbs(); // Update orb colors based on new crossing status
+            this.updateLines(); // Update line colors based on crossing status
         }
     }
 
@@ -211,7 +213,7 @@ class GameScene extends Phaser.Scene {
                 const p4 = this.orbs[b2]; // Position of second point of second edge
                 // Check if the two line segments intersect
                 if (this.linesIntersect(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)) {
-                    console.log("Crossing between edges: ", this.edges[i], this.edges[j]);
+                    //console.log("Crossing between edges: ", this.edges[i], this.edges[j]);
                     //return true; // Crossing found
                     this.edges[i].crossing = true;
                     this.edges[j].crossing = true;
@@ -259,27 +261,31 @@ class GameScene extends Phaser.Scene {
     }
 
     // Updates the colors of orb sprites based on current cycle status
-    updateOrbColors() {
+    updateOrbs() {
         const nonCrossingCycles = this.getNonCrossingCycles();
         this.orbs.forEach((orb) => {
             const cycleId = this.getOrbCycle(orb.id);
             const color = (cycleId !== -1 && nonCrossingCycles.has(cycleId)) ? 0xffff00 : 0x00ff00;
             orb.sprite.setFillStyle(color);
+            orb.sprite.x = orb.x;
+            orb.sprite.y = orb.y;
+            orb.text.x = orb.x;
+            orb.text.y = orb.y;
         });
     }
 
     updateLines() {
+        this.graphics.clear(); // Clear existing graphics
         for (let edge of this.edges) {
-            console.log("Updating line for edge: ", edge);
+            //console.log("Updating line for edge: ", edge);
             const orbA = this.orbs[edge.a];
             const orbB = this.orbs[edge.b];
-            edge.graphics.destroy(); // Remove old line graphic
             if (edge.crossing) {
                 this.graphics.lineStyle(4, 0x0000ff); // Set line style: 4px width, blue color for crossing
             } else {
                 this.graphics.lineStyle(2, 0xff0000); // Set line style: 2px width, red color for normal
             }
-            edge.graphics = this.graphics.lineBetween(orbA.x, orbA.y, orbB.x, orbB.y);
+            this.graphics.lineBetween(orbA.x, orbA.y, orbB.x, orbB.y);
         };
     }
 
