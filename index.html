@@ -6,19 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Line Cross Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-</head>
-
-<body>
-    <p>The fox sprits of the forest have become lost, and their chi has become entangled. Swap spirits mask to form cycles so that the chi lines no longer cross.</p>
-    <div id="game-container"></div>
     <style>
-        #game-container {
-            width: 100vw;
+        body {
+            margin: 20px;
+            background-color: black;
+            color: white;
+            font-family: "Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        a {
+            color: lightblue;
+        }
+
+
+        .button-36 {
+            background-image: linear-gradient(92.88deg, #455EB5 9.16%, #5643CC 43.89%, #673FD7 64.72%);
+            border-radius: 8px;
+            border-style: none;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            flex-shrink: 0;
+            height: 4rem;
+            padding: 0 1.6rem;
+            text-align: center;
+            text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+            transition: all .5s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .button-36:hover {
+            box-shadow: rgba(80, 63, 205, 0.5) 0 1px 30px;
+            transition-duration: .1s;
+        }
+
+        @media (min-width: 768px) {
+            .button-36 {
+                padding: 0 2.6rem;
+            }
+        }
+
+         #game-container {
+            width: calc(100vw - 50px);
             height: calc(100vh - 200px);
         }
     </style>
+</head>
+
+<body>
+    <p style="width: 100%; text-align: center;">The fox sprits of the forest have become lost, and their chi has become entangled. Swap spirits mask to form
+        cycles so that the chi lines no longer cross.</p>
+    <div id="game-container"></div>
     <script src="game.js"></script>
-    <form>
+    <form style="width: 100%; text-align: center;">
         How many masks: <input type="range" name="masks" id="masks" min="6" max="100" step="1" value="12" />
         6 to <span id="maskCount">12</span>
         <span style="width:40px; display: inline-block"></span>
@@ -26,9 +70,11 @@
         How many cycles: <input type="range" name="cycles" id="cycles" min="2" max="4" step="1" value="2" />
         2 to <span id="cyclesCount">2</span>
         <span style="width:40px; display: inline-block"></span>
-        <button onclick="restartGame()" type="button">Restart Game</button>
+        <button onclick="restartGame()" type="button" class="button-36" role="button">Restart Game</button>
     </form>
-    <p><a href="https://www.freepik.com/free-vector/hand-drawn-flat-design-kitsune-mask-illustration_25225907.htm">Mask by freepik</a>, <a href="https://giphy.com/desktoppaints">Lightning by DP Animation Maker</a> both heavily modified.</p>
+    <p><a href="https://www.freepik.com/free-vector/hand-drawn-flat-design-kitsune-mask-illustration_25225907.htm">Mask
+            by freepik</a>, <a href="https://giphy.com/desktoppaints">Lightning by DP Animation Maker</a> both heavily
+        modified.</p>
 </body>
 
 </html>

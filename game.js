@@ -204,7 +204,13 @@ class GameScene extends Phaser.Scene {
                     // Check if puzzle is solved (no crossings)
                     if (this.countCrossings() === 0) {
                         this.solved = true;
-                        const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
+                        const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits', 
+                            { 
+                                fontSize: '48px', 
+                                fill: '#3771B8', 
+                                backgroundColor: '#000000', 
+                                fontFamily : '"Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif'
+                             }).setOrigin(0.5);
                         solvedText.setDepth(10); // Above all
                         this.input.on('pointerdown', () => window.restartGame(), this);
                     }
