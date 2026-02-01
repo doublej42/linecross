@@ -10,10 +10,8 @@ class GameScene extends Phaser.Scene {
         // Load orb images
         this.load.image('flame', 'images/FlameMask110.png');
         this.load.image('nonflame', 'images/NonFlameMask110.png');
-        // Load line GIFs
-        this.load.image('white', 'images/white.gif');
-        this.load.image('red', 'images/red.gif');
-        this.load.image('blue', 'images/blue.gif');
+        // Load line sprite sheet
+        this.load.spritesheet('lines', 'images/sprite-sheet.png', { frameWidth: 488, frameHeight: 40 });
     }
 
     // Create method - initializes the game scene
@@ -43,6 +41,15 @@ class GameScene extends Phaser.Scene {
 
         } // Regenerate if no crossings exist
         this.drawOrbs();
+
+        // Create line animation
+        this.anims.create({
+            key: 'lineAnim',
+            frames: this.anims.generateFrameNumbers('lines', { start: 0, end: 36 }),
+            frameRate: 16.67,
+            repeat: -1
+        });
+
         this.updateLines(); // Create line sprites
 
         // Add click handlers for orb interaction
@@ -318,21 +325,19 @@ class GameScene extends Phaser.Scene {
             const dy = orbB.sprite.y - orbA.sprite.y;
             const length = Math.sqrt(dx * dx + dy * dy);
             const angle = Math.atan2(dy, dx);
-            let key;
+            if (!edge.sprite) {
+                edge.sprite = this.add.sprite(0, 0, 'lines');
+                edge.sprite.play('lineAnim');
+            }
             if (edge.crossing) {
-                key = 'red';
+                edge.sprite.setTint(0xff0000); // red for crossing
             } else {
                 const nonCrossingCycles = this.getNonCrossingCycles();
                 if (nonCrossingCycles.has(edge.cycleId)) {
-                    key = 'white';
+                    edge.sprite.setTint(0xffffff); // white for completed cycle
                 } else {
-                    key = 'blue';
+                    edge.sprite.setTint(0x0000ff); // blue for incomplete
                 }
-            }
-            if (!edge.sprite) {
-                edge.sprite = this.add.sprite(0, 0, key);
-            } else {
-                edge.sprite.setTexture(key);
             }
             edge.sprite.x = (orbA.sprite.x + orbB.sprite.x) / 2;
             edge.sprite.y = (orbA.sprite.y + orbB.sprite.y) / 2;
