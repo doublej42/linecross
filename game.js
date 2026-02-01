@@ -7,7 +7,9 @@ class GameScene extends Phaser.Scene {
 
     // Preload method - loads assets before the game starts
     preload() {
-        // No assets to load for this game
+        // Load orb images
+        this.load.image('flame', 'images/FlameMask110.png');
+        this.load.image('nonflame', 'images/NonFlameMask110.png');
     }
 
     // Create method - initializes the game scene
@@ -119,25 +121,19 @@ class GameScene extends Phaser.Scene {
         });
     }
 
-    // Draws the orbs with appropriate colors based on cycle status
+    // Draws the orbs with appropriate images based on cycle status
     drawOrbs() {
         const nonCrossingCycles = this.getNonCrossingCycles();
         this.orbs.forEach((orb) => {
-            // Determine color: yellow if in a non-crossing cycle, green otherwise
+            // Determine texture: flame if in a non-crossing cycle, nonflame otherwise
             const cycleId = this.getOrbCycle(orb.id);
-            const color = (cycleId !== -1 && nonCrossingCycles.has(cycleId)) ? 0xffff00 : 0x00ff00;
-            // Create a circle sprite for the orb
-            const sprite = this.add.circle(orb.x, orb.y, 20, color);
+            const key = (cycleId !== -1 && nonCrossingCycles.has(cycleId)) ? 'flame' : 'nonflame';
+            // Create a sprite for the orb
+            const sprite = this.add.sprite(orb.x, orb.y, key);
+            sprite.setScale(0.5); // Start at half size
             sprite.setInteractive(); // Make sprite clickable
             sprite.orb = orb; // Reference to orb object
             orb.sprite = sprite; // Reference to sprite
-            // Create text label showing the orb's ID
-            const text = this.add.text(orb.x, orb.y, orb.id.toString(), {
-                fontSize: '16px',
-                fill: '#000',
-                fontFamily: 'Arial'
-            }).setOrigin(0.5); // Center the text
-            orb.text = text; // Reference to text object
         });
     }
 
@@ -165,20 +161,21 @@ class GameScene extends Phaser.Scene {
         if (this.selectedOrb === null) {
             // No orb selected: select this one
             this.selectedOrb = gameObject.orb;
-            gameObject.setFillStyle(0xff0000); // Turn red to indicate selection
+            
+            gameObject.setScale(0.75); // Scale to full size
         } else if (this.selectedOrb === gameObject.orb) {
             // Clicking the same orb: deselect
-            this.selectedOrb.sprite.setFillStyle(0x00ff00); // Turn back to green
+            this.selectedOrb.sprite.setScale(0.5); // Scale back to half size
             this.selectedOrb = null;
         } else {
             // Swap positions of selected and clicked orbs
             const orb1 = this.selectedOrb;
             const orb2 = gameObject.orb;
             this.swapOrbs(orb1, orb2);
-            // Deselect and reset color
-            this.selectedOrb.sprite.setFillStyle(0x00ff00);
+            this.selectedOrb.sprite.setScale(0.5); // Scale back to half size
             this.selectedOrb = null;
-            gameObject.setFillStyle(0x00ff00);
+            
+            gameObject.setScale(0.5); // Scale back to half size
 
             // Animate the swap
             this.isAnimating = true;
@@ -196,9 +193,9 @@ class GameScene extends Phaser.Scene {
                 }
             };
 
-            // Tween orb1's sprite and text to new position
+            // Tween orb1's sprite to new position
             this.tweens.add({
-                targets: [orb1.sprite, orb1.text],
+                targets: orb1.sprite,
                 x: orb1.x,
                 y: orb1.y,
                 duration: 500,
@@ -207,9 +204,9 @@ class GameScene extends Phaser.Scene {
                 onComplete: onTweenComplete
             });
 
-            // Tween orb2's sprite and text to new position
+            // Tween orb2's sprite to new position
             this.tweens.add({
-                targets: [orb2.sprite, orb2.text],
+                targets: orb2.sprite,
                 x: orb2.x,
                 y: orb2.y,
                 duration: 500,
@@ -299,17 +296,15 @@ class GameScene extends Phaser.Scene {
         return nonCrossing;
     }
 
-    // Updates the colors of orb sprites based on current cycle status
+    // Updates the textures of orb sprites based on current cycle status
     updateOrbs() {
         const nonCrossingCycles = this.getNonCrossingCycles();
         this.orbs.forEach((orb) => {
             const cycleId = this.getOrbCycle(orb.id);
-            const color = (cycleId !== -1 && nonCrossingCycles.has(cycleId)) ? 0xffff00 : 0x00ff00;
-            orb.sprite.setFillStyle(color);
+            const key = (cycleId !== -1 && nonCrossingCycles.has(cycleId)) ? 'flame' : 'nonflame';
+            orb.sprite.setTexture(key);
             orb.sprite.x = orb.x;
             orb.sprite.y = orb.y;
-            orb.text.x = orb.x;
-            orb.text.y = orb.y;
         });
     }
 
