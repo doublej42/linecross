@@ -140,6 +140,7 @@ class GameScene extends Phaser.Scene {
             // Create a sprite for the orb
             const sprite = this.add.sprite(orb.x, orb.y, key);
             sprite.setScale(0.5); // Start at half size
+            sprite.setDepth(1); // Orbs on top
             sprite.setInteractive(); // Make sprite clickable
             sprite.orb = orb; // Reference to orb object
             orb.sprite = sprite; // Reference to sprite
@@ -155,7 +156,7 @@ class GameScene extends Phaser.Scene {
             const orbB = this.orbs[edge.b];
 
             if (edge.crossing) {
-                this.graphics.lineStyle(4, 0x0000ff); // Set line style: 4px width, blue color for crossing
+                this.graphics.lineStyle(4, 0x7777ff); // Set line style: 4px width, blue color for crossing
             } else {
                 this.graphics.lineStyle(2, 0xff0000); // Set line style: 2px width, red color for normal
             }
@@ -327,6 +328,7 @@ class GameScene extends Phaser.Scene {
             const angle = Math.atan2(dy, dx);
             if (!edge.sprite) {
                 edge.sprite = this.add.sprite(0, 0, 'lines');
+                edge.sprite.setDepth(0); // Lines below orbs
                 edge.sprite.play('lineAnim');
             }
             if (edge.crossing) {
@@ -336,7 +338,7 @@ class GameScene extends Phaser.Scene {
                 if (nonCrossingCycles.has(edge.cycleId)) {
                     edge.sprite.setTint(0xffffff); // white for completed cycle
                 } else {
-                    edge.sprite.setTint(0x0000ff); // blue for incomplete
+                    edge.sprite.setTint(0x7777ff); // blue for incomplete
                 }
             }
             edge.sprite.x = (orbA.sprite.x + orbB.sprite.x) / 2;
