@@ -19,22 +19,22 @@ class GameScene extends Phaser.Scene {
         this.graphics = this.add.graphics(); // Graphics object for drawing lines
 
         // Generate graph and place orbs, ensuring initial layout has crossings
-            this.generateGraph(); // Create the graph structure
-            this.placeOrbs(); // Position orbs on screen
-            
+        this.generateGraph(); // Create the graph structure
+        this.placeOrbs(); // Position orbs on screen
+
 
         while (this.countCrossings() === 0) {
             // swap the positions of two random orbs to create crossings
             let index1 = Phaser.Math.Between(0, this.orbs.length - 1);
             let index2 = Phaser.Math.Between(0, this.orbs.length - 1);
             //make sure we have two different orbs
-            
+
             while (index1 === index2) {
                 index2 = Phaser.Math.Between(0, this.orbs.length - 1);
-            } 
+            }
             // Swap x and y coordinates of the two selected orbs
             this.swapOrbs(this.orbs[index1], this.orbs[index2]);
-            
+
         } // Regenerate if no crossings exist
         this.graphics.clear();
         this.drawLines();
@@ -47,9 +47,10 @@ class GameScene extends Phaser.Scene {
     // Generates a random graph with orbs and connecting edges forming cycles
     generateGraph() {
         // Randomly choose number of orbs (between 6 and 20)
-        const numOrbs = Phaser.Math.Between(6, 6);
-        // Randomly choose number of cycles (between 2 and 5)
-        const numCycles = Phaser.Math.Between(2, 2);
+        const numOrbs = Phaser.Math.Between(6, 20);
+        // Randomly choose number of cycles bvetween 2 and numOrbs/3
+        const numCycles = Phaser.Math.Between(2, Math.max(2, Math.floor(numOrbs / 3)));
+        console.log("Generating graph with " + numOrbs + " orbs and " + numCycles + " cycles.");
         // Initialize orbs array with id and placeholder positions
         this.orbs = Array.from({ length: numOrbs }, (_, i) => ({ id: i, x: 0, y: 0 }));
         // Initialize edges array
@@ -61,11 +62,16 @@ class GameScene extends Phaser.Scene {
         for (let i = 0; i < numCycles; i++) {
             const minSize = 3; // Minimum cycle size
             const maxSize = remainingOrbs - (numCycles - i - 1) * 3; // Ensure enough orbs for remaining cycles
+            if(i === numCycles - 1) {
+                // Last cycle takes all remaining orbs
+                cycleSizes.push(remainingOrbs);
+                break;
+            }
             const size = Phaser.Math.Between(minSize, Math.max(minSize, maxSize));
             cycleSizes.push(size);
             remainingOrbs -= size;
         }
-
+        console.log("Cycle sizes: ", cycleSizes);
         // Assign orbs to cycles and create edges
         let orbIndex = 0;
         let cycleId = 0;
@@ -80,9 +86,9 @@ class GameScene extends Phaser.Scene {
                 const b = cycle[(i + 1) % size];
 
                 this.edges.push({
-                    a:a, 
-                    b:b,
-                    crossing:false,
+                    a: a,
+                    b: b,
+                    crossing: false,
                     cycleId: cycleId
                 });
             }
@@ -108,10 +114,10 @@ class GameScene extends Phaser.Scene {
             // Assign position to orb
             orb.x = x;
             orb.y = y;
-            console.log("Orb " + orb.id + " position: (" + orb.x + ", " + orb.y + ")");
+            //console.log("Orb " + orb.id + " position: (" + orb.x + ", " + orb.y + ")");
         });
     }
-  
+
     // Draws the orbs with appropriate colors based on cycle status
     drawOrbs() {
         const nonCrossingCycles = this.getNonCrossingCycles();
@@ -141,7 +147,7 @@ class GameScene extends Phaser.Scene {
         for (let edge of this.edges) {
             const orbA = this.orbs[edge.a];
             const orbB = this.orbs[edge.b];
-            
+
             if (edge.crossing) {
                 this.graphics.lineStyle(4, 0x0000ff); // Set line style: 4px width, blue color for crossing
             } else {
@@ -170,10 +176,10 @@ class GameScene extends Phaser.Scene {
             // Deselect and reset color
             this.selectedOrb.sprite.setFillStyle(0x00ff00);
             this.selectedOrb = null;
-            
+
 
             // Check if puzzle is solved (no crossings)
-            if (this.countCrossings() === 0 ) {
+            if (this.countCrossings() === 0) {
                 this.add.text(400, 300, 'Solved!', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
             }
             this.updateOrbs(); // Update orb colors based on new crossing status
@@ -183,9 +189,9 @@ class GameScene extends Phaser.Scene {
 
     //this swaps two orbs possitions. It can used before the first drawing so it doesn't modify graphics.
     swapOrbs(orb1, orb2) {
-            console.log("Swapping orbs: ", orb1, orb2);
-            // Swap x and y coordinates
-            [orb1.x, orb1.y, orb2.x, orb2.y] = [orb2.x, orb2.y, orb1.x, orb1.y];
+        console.log("Swapping orbs: ", orb1, orb2);
+        // Swap x and y coordinates
+        [orb1.x, orb1.y, orb2.x, orb2.y] = [orb2.x, orb2.y, orb1.x, orb1.y];
     }
 
     // counts any crossings and marks the edge as crossing.
@@ -193,13 +199,13 @@ class GameScene extends Phaser.Scene {
         let ret = 0
         for (let i = 0; i < this.edges.length; i++) {
             this.edges[i].crossing = false; // Reset crossing status
-        }   
+        }
         // Compare every pair of edges
         for (let i = 0; i < this.edges.length; i++) {
             for (let j = i + 1; j < this.edges.length; j++) {
                 const { a: a1, b: b1 } = this.edges[i];// Endpoints of first edge
-                const {a: a2, b:b2} = this.edges[j]; // Endpoints of second edge
-                if (this.edges[i].crossing === true && this.edges[j].crossing === true){   
+                const { a: a2, b: b2 } = this.edges[j]; // Endpoints of second edge
+                if (this.edges[i].crossing === true && this.edges[j].crossing === true) {
                     continue; // Already marked as crossing
                 }
                 // skip if they share a vertex
@@ -221,7 +227,7 @@ class GameScene extends Phaser.Scene {
                 }
             }
         }
-        console.log("Edges: " ,this.edges);
+        console.log("Edges: ", this.edges);
         console.log("Crossings found: " + ret);
         return ret; // Crossings found count
     }
