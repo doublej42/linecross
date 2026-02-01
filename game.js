@@ -16,6 +16,10 @@ class GameScene extends Phaser.Scene {
 
     // Create method - initializes the game scene
     create() {
+        // Get max values from inputs or scene data
+        this.maxOrbs = this.scene.settings.data?.maxOrbs || parseInt(document.getElementById('masks').value) || 20;
+        this.maxCycles = this.scene.settings.data?.maxCycles || parseInt(document.getElementById('cycles').value) || 5;
+
         // Initialize arrays and variables
         this.orbs = []; // Array to hold orb objects
         this.edges = []; // Array to hold edge connections between orbs
@@ -58,10 +62,10 @@ class GameScene extends Phaser.Scene {
 
     // Generates a random graph with orbs and connecting edges forming cycles
     generateGraph() {
-        // Randomly choose number of orbs (between 6 and 20)
-        const numOrbs = Phaser.Math.Between(6, 20);
-        // Randomly choose number of cycles bvetween 2 and numOrbs/3
-        const numCycles = Phaser.Math.Between(2, Math.max(2, Math.floor(numOrbs / 3)));
+        // Randomly choose number of orbs (between 6 and maxOrbs)
+        const numOrbs = Phaser.Math.Between(6, this.maxOrbs);
+        // Randomly choose number of cycles between 2 and min(maxCycles, numOrbs/3)
+        const numCycles = Phaser.Math.Between(2, Math.max(2, Math.min(this.maxCycles, Math.floor(numOrbs / 3))));
         console.log("Generating graph with " + numOrbs + " orbs and " + numCycles + " cycles.");
         // Initialize orbs array with id and placeholder positions
         this.orbs = Array.from({ length: numOrbs }, (_, i) => ({ id: i, x: 0, y: 0 }));
@@ -74,7 +78,7 @@ class GameScene extends Phaser.Scene {
         for (let i = 0; i < numCycles; i++) {
             const minSize = 3; // Minimum cycle size
             const maxSize = remainingOrbs - (numCycles - i - 1) * 3; // Ensure enough orbs for remaining cycles
-            if(i === numCycles - 1) {
+            if (i === numCycles - 1) {
                 // Last cycle takes all remaining orbs
                 cycleSizes.push(remainingOrbs);
                 break;
@@ -172,7 +176,7 @@ class GameScene extends Phaser.Scene {
         if (this.selectedOrb === null) {
             // No orb selected: select this one
             this.selectedOrb = gameObject.orb;
-            
+
             gameObject.setScale(0.75); // Scale to full size
         } else if (this.selectedOrb === gameObject.orb) {
             // Clicking the same orb: deselect
@@ -185,7 +189,7 @@ class GameScene extends Phaser.Scene {
             this.swapOrbs(orb1, orb2);
             this.selectedOrb.sprite.setScale(0.5); // Scale back to half size
             this.selectedOrb = null;
-            
+
             gameObject.setScale(0.5); // Scale back to half size
 
             // Animate the swap
@@ -373,3 +377,37 @@ const config = {
 
 // Create and start the Phaser game
 const game = new Phaser.Game(config);
+
+// Add restart function to window
+window.restartGame = function () {
+    const maxOrbs = parseInt(document.getElementById('masks').value) || 20;
+    const maxCycles = parseInt(document.getElementById('cycles').value) || 5;
+    game.scene.scenes[0].scene.restart({ maxOrbs: maxOrbs, maxCycles: maxCycles });
+};
+
+
+//html ui code
+document.addEventListener("DOMContentLoaded", function() {
+    const maskInput = document.getElementById('masks');
+    const maskCount = document.getElementById('maskCount');
+
+    const cyclesInput = document.getElementById('cycles');
+    const cyclesCount = document.getElementById('cyclesCount');
+
+    maskInput.addEventListener('input', () => {
+        let maxCycles = Math.floor(maskInput.value / 3);
+        
+        // console.log("Max cycles set to: " + maxCycles);
+        // console.log("Current cycles value: " + cyclesInput.value);
+        // console.warn("update should happen? " ,(cyclesInput.value > maxCycles));
+        
+        maskCount.textContent = maskInput.value;
+        cyclesInput.max = maxCycles;
+        cyclesCount.textContent = cyclesInput.value;
+    });
+
+
+    cyclesInput.addEventListener('input', () => {
+        cyclesCount.textContent = cyclesInput.value;
+    }); 
+});

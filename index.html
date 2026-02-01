@@ -1,69 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Line Cross Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 </head>
+
 <body>
     <p>The fox sprits of the forest have become lost, and their chi has become entangled. Swap spirits mask to form cycles so that the chi lines no longer cross.</p>
     <div id="game-container"></div>
     <style>
         #game-container {
             width: 100vw;
-            height: calc(100vh  - 200px);
+            height: calc(100vh - 200px);
         }
     </style>
     <script src="game.js"></script>
     <form>
-        How many masks: <input
-            type="range"
-            name="masks"
-            id="masks"
-            min="6"
-            max="100"
-            step="1"
-            value="12" />
-        <span id="maskCount">12</span>
-        <span width="20px"></span>
+        How many masks: <input type="range" name="masks" id="masks" min="6" max="100" step="1" value="12" />
+        6 to <span id="maskCount">12</span>
+        <span style="width:40px; display: inline-block"></span>
 
-        How many cycles (less than 1/3rd of masks): <input
-            type="range"
-            name="cycles"
-            id="cycles"
-            min="2"
-            max="20"
-            step="1"
-            value="2" />
-        <span id="cyclesCount">12</span>
-
-        <script>
-            const maskInput = document.getElementById('masks');
-            const maskCount = document.getElementById('maskCount');
-
-            const cyclesInput = document.getElementById('cycles');
-            const cyclesCount = document.getElementById('cyclesCount');
-
-            maskInput.addEventListener('input', () => {
-                maskCount.textContent = maskInput.value;
-                if ((maskInput.value / 3) < cyclesInput.max) {
-                    cyclesInput.max = maskInput.value / 3;
-                    if (cyclesInput.value > cyclesInput.max) {
-                        cyclesInput.value = cyclesInput.max;
-                    }
-                    cyclesCount.textContent = cyclesInput.value;
-                }
-            }); 
-
-           
-            cyclesInput.addEventListener('input', () => {
-                cyclesCount.textContent = cyclesInput.value;
-            }); 
-        </script>
-
-        <button onclick="location.reload(); return false;">Restart Game</button>
+        How many cycles: <input type="range" name="cycles" id="cycles" min="2" max="4" step="1" value="2" />
+        2 to <span id="cyclesCount">2</span>
+        <span style="width:40px; display: inline-block"></span>
+        <button onclick="restartGame()" type="button">Restart Game</button>
     </form>
-    <p><a href="https://www.freepik.com/free-vector/hand-drawn-flat-design-kitsune-mask-illustration_25225907.htm">Mask by freepik</a><a href="https://giphy.com/desktoppaints">Lightning by DP Animation Maker</a> both heavily modified.</p>
+    <p><a href="https://www.freepik.com/free-vector/hand-drawn-flat-design-kitsune-mask-illustration_25225907.htm">Mask by freepik</a>, <a href="https://giphy.com/desktoppaints">Lightning by DP Animation Maker</a> both heavily modified.</p>
 </body>
+
 </html>
