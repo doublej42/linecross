@@ -17,6 +17,7 @@ class GameScene extends Phaser.Scene {
         this.edges = []; // Array to hold edge connections between orbs
         this.selectedOrb = null; // Currently selected orb for swapping
         this.graphics = this.add.graphics(); // Graphics object for drawing lines
+        this.isAnimating = false; // Flag to prevent actions during animation
 
         // Generate graph and place orbs, ensuring initial layout has crossings
         this.generateGraph(); // Create the graph structure
@@ -159,6 +160,7 @@ class GameScene extends Phaser.Scene {
 
     // Handles clicking on orbs for selection and swapping
     onOrbClick(pointer, gameObject) {
+        if (this.isAnimating) return; // Prevent actions during animation
         console.log("Orb clicked: ", gameObject.orb);
         if (this.selectedOrb === null) {
             // No orb selected: select this one
@@ -176,14 +178,45 @@ class GameScene extends Phaser.Scene {
             // Deselect and reset color
             this.selectedOrb.sprite.setFillStyle(0x00ff00);
             this.selectedOrb = null;
+            gameObject.setFillStyle(0x00ff00);
 
+            // Animate the swap
+            this.isAnimating = true;
+            let tweenCount = 0;
+            const onTweenComplete = () => {
+                tweenCount++;
+                if (tweenCount === 2) {
+                    this.isAnimating = false;
+                    // Check if puzzle is solved (no crossings)
+                    if (this.countCrossings() === 0) {
+                        this.add.text(400, 300, 'Solved!', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
+                    }
+                    this.updateOrbs(); // Update orb colors based on new crossing status
+                    this.updateLines(); // Update line colors based on crossing status
+                }
+            };
 
-            // Check if puzzle is solved (no crossings)
-            if (this.countCrossings() === 0) {
-                this.add.text(400, 300, 'Solved!', { fontSize: '48px', fill: '#a33bb8' }).setOrigin(0.5);
-            }
-            this.updateOrbs(); // Update orb colors based on new crossing status
-            this.updateLines(); // Update line colors based on crossing status
+            // Tween orb1's sprite and text to new position
+            this.tweens.add({
+                targets: [orb1.sprite, orb1.text],
+                x: orb1.x,
+                y: orb1.y,
+                duration: 500,
+                ease: 'Power2',
+                onUpdate: () => this.updateLines(),
+                onComplete: onTweenComplete
+            });
+
+            // Tween orb2's sprite and text to new position
+            this.tweens.add({
+                targets: [orb2.sprite, orb2.text],
+                x: orb2.x,
+                y: orb2.y,
+                duration: 500,
+                ease: 'Power2',
+                onUpdate: () => this.updateLines(),
+                onComplete: onTweenComplete
+            });
         }
     }
 
@@ -291,7 +324,7 @@ class GameScene extends Phaser.Scene {
             } else {
                 this.graphics.lineStyle(2, 0xff0000); // Set line style: 2px width, red color for normal
             }
-            this.graphics.lineBetween(orbA.x, orbA.y, orbB.x, orbB.y);
+            this.graphics.lineBetween(orbA.sprite.x, orbA.sprite.y, orbB.sprite.x, orbB.sprite.y);
         };
     }
 
