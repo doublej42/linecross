@@ -10,6 +10,10 @@ class GameScene extends Phaser.Scene {
         // Load orb images
         this.load.image('flame', 'images/FlameMask110.png');
         this.load.image('nonflame', 'images/NonFlameMask110.png');
+        // Load line GIFs
+        this.load.image('white', 'images/white.gif');
+        this.load.image('red', 'images/red.gif');
+        this.load.image('blue', 'images/blue.gif');
     }
 
     // Create method - initializes the game scene
@@ -18,7 +22,6 @@ class GameScene extends Phaser.Scene {
         this.orbs = []; // Array to hold orb objects
         this.edges = []; // Array to hold edge connections between orbs
         this.selectedOrb = null; // Currently selected orb for swapping
-        this.graphics = this.add.graphics(); // Graphics object for drawing lines
         this.isAnimating = false; // Flag to prevent actions during animation
 
         // Generate graph and place orbs, ensuring initial layout has crossings
@@ -39,9 +42,8 @@ class GameScene extends Phaser.Scene {
             this.swapOrbs(this.orbs[index1], this.orbs[index2]);
 
         } // Regenerate if no crossings exist
-        this.graphics.clear();
-        this.drawLines();
         this.drawOrbs();
+        this.updateLines(); // Create line sprites
 
         // Add click handlers for orb interaction
         this.input.on('gameobjectdown', this.onOrbClick, this);
@@ -309,18 +311,34 @@ class GameScene extends Phaser.Scene {
     }
 
     updateLines() {
-        this.graphics.clear(); // Clear existing graphics
         for (let edge of this.edges) {
-            //console.log("Updating line for edge: ", edge);
             const orbA = this.orbs[edge.a];
             const orbB = this.orbs[edge.b];
+            const dx = orbB.sprite.x - orbA.sprite.x;
+            const dy = orbB.sprite.y - orbA.sprite.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            let key;
             if (edge.crossing) {
-                this.graphics.lineStyle(4, 0x0000ff); // Set line style: 4px width, blue color for crossing
+                key = 'red';
             } else {
-                this.graphics.lineStyle(2, 0xff0000); // Set line style: 2px width, red color for normal
+                const nonCrossingCycles = this.getNonCrossingCycles();
+                if (nonCrossingCycles.has(edge.cycleId)) {
+                    key = 'white';
+                } else {
+                    key = 'blue';
+                }
             }
-            this.graphics.lineBetween(orbA.sprite.x, orbA.sprite.y, orbB.sprite.x, orbB.sprite.y);
-        };
+            if (!edge.sprite) {
+                edge.sprite = this.add.sprite(0, 0, key);
+            } else {
+                edge.sprite.setTexture(key);
+            }
+            edge.sprite.x = (orbA.sprite.x + orbB.sprite.x) / 2;
+            edge.sprite.y = (orbA.sprite.y + orbB.sprite.y) / 2;
+            edge.sprite.rotation = angle;
+            edge.sprite.setScale(length / edge.sprite.width, 1);
+        }
     }
 
     // Returns the cycle ID for a given orb ID, or -1 if not found
