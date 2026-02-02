@@ -41,20 +41,30 @@ class GameScene extends Phaser.Scene {
         this.forestRainAudio = forestRainAudio;
         this.forestAmbienceAudio = forestAmbienceAudio;
 
-        // Set up start button handler
+        // Set up start button handler and audio preference checkbox
         const startButton = document.getElementById('startButton');
         const startModal = document.getElementById('startModal');
+        const audioCheckbox = document.getElementById('audioCheckbox');
+        // Initialize checkbox from localStorage (if present)
+        const stored = localStorage.getItem('audioEnabled');
+        if (stored !== null) {
+            audioCheckbox.checked = stored === 'true';
+        }
+        this.audioEnabled = audioCheckbox.checked;
+
         startButton.addEventListener('click', () => {
             startModal.classList.add('hidden');
             this.gameStarted = true;
-            window.audioStarted = true;
-            this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
+            // Persist audio preference
+            this.audioEnabled = audioCheckbox.checked;
+            localStorage.setItem('audioEnabled', this.audioEnabled ? 'true' : 'false');
+            if (this.audioEnabled) {
+                this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
+            } else {
+                this.forestRainAudio.pause();
 
+            }
         });
-        console.log("about to start audio?", window.audioStarted);
-        if (window.audioStarted === true) {
-            this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
-        }
 
         // Generate graph and place orbs, ensuring initial layout has crossings
         this.generateGraph(); // Create the graph structure
@@ -236,10 +246,16 @@ class GameScene extends Phaser.Scene {
                     if (this.countCrossings() === 0) {
                         this.solved = true;
 
-                        // Switch audio from forest rain to forest ambience
-                        this.forestRainAudio.pause();
-                        this.forestAmbienceAudio.currentTime = 0;
-                        this.forestAmbienceAudio.play().catch(err => console.log('Audio playback error:', err));
+                        // Switch audio from forest rain to forest ambience if audio enabled
+                        if (this.audioEnabled) {
+                            this.forestRainAudio.pause();
+                            this.forestAmbienceAudio.currentTime = 0;
+                            this.forestAmbienceAudio.play().catch(err => console.log('Audio playback error:', err));
+                        } else {
+                            // Ensure audios are paused if user disabled audio
+                            this.forestRainAudio.pause();
+                            this.forestAmbienceAudio.pause();
+                        }
 
                         const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits',
                             {
