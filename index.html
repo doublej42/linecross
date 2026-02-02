@@ -54,10 +54,62 @@
             width: calc(100vw - 50px);
             height: calc(100vh - 200px);
         }
+
+        #startModal {
+            display: flex;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #startModal.hidden {
+            display: none;
+        }
+
+        #startModal h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            color: #3771B8;
+        }
+
+        #startModal p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #startButton {
+            font-size: 18px;
+            padding: 15px 40px;
+            height: auto;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Audio elements for background music -->
+    <audio id="forestRain" loop preload="auto">
+        <source src="sounds/forest-rain-atmo-fantasy-14435.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="forestAmbience" preload="auto">
+        <source src="sounds/forest-ambience-296528.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Start Game Modal -->
+    <div id="startModal">
+        <h1>Chi Cross</h1>
+        <p>The fox spirits of the forest have become lost, and their chi has become entangled. Swap spirits masks to form cycles so that the chi lines no longer cross.</p>
+        <button id="startButton" class="button-36" role="button">Start Game</button>
+    </div>
+
     <p style="width: 100%; text-align: center;">The fox sprits of the forest have become lost, and their chi has become entangled. Swap spirits mask to form
         cycles so that the chi lines no longer cross.</p>
     <div id="game-container"></div>
@@ -75,6 +127,9 @@
     <p><a href="https://www.freepik.com/free-vector/hand-drawn-flat-design-kitsune-mask-illustration_25225907.htm">Mask
             by freepik</a>, <a href="https://giphy.com/desktoppaints">Lightning by DP Animation Maker</a> both heavily
         modified.</p>
+        <p>
+            Sound Effect by <a href="https://pixabay.com/users/audiopapkin-14728698/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=296528">Paweł Spychała</a> and  <a href="https://pixabay.com/users/freesound_community-46691455/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=14435">freesound_community</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=296528">Pixabay</a>
+        </p>
 </body>
 
 </html>

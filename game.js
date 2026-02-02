@@ -26,6 +26,35 @@ class GameScene extends Phaser.Scene {
         this.selectedOrb = null; // Currently selected orb for swapping
         this.isAnimating = false; // Flag to prevent actions during animation
         this.solved = false; // Flag to indicate if puzzle is solved
+        //window.audioStarted = false; // Flag to track if background music has started
+        this.gameStarted = false; // Flag to track if game has started
+
+        // Store audio element references
+        const forestRainAudio = document.getElementById('forestRain');
+        const forestAmbienceAudio = document.getElementById('forestAmbience');
+        
+        // Ensure only forest rain plays initially
+        forestAmbienceAudio.pause();
+        forestAmbienceAudio.currentTime = 0;
+        forestRainAudio.currentTime = 0;
+        
+        this.forestRainAudio = forestRainAudio;
+        this.forestAmbienceAudio = forestAmbienceAudio;
+
+        // Set up start button handler
+        const startButton = document.getElementById('startButton');
+        const startModal = document.getElementById('startModal');
+        startButton.addEventListener('click', () => {
+            startModal.classList.add('hidden');
+            this.gameStarted = true;
+            window.audioStarted = true;
+            this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
+            
+        });
+        console.log("about to start audio?", window.audioStarted);
+        if (window.audioStarted === true) {
+            this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
+        }
 
         // Generate graph and place orbs, ensuring initial layout has crossings
         this.generateGraph(); // Create the graph structure
@@ -172,8 +201,10 @@ class GameScene extends Phaser.Scene {
 
     // Handles clicking on orbs for selection and swapping
     onOrbClick(pointer, gameObject) {
+        console.log("onOrbClick triggered");
         if (this.solved) return; // Prevent actions after solved
         if (this.isAnimating) return; // Prevent actions during animation
+        
         console.log("Orb clicked: ", gameObject.orb);
         if (this.selectedOrb === null) {
             // No orb selected: select this one
@@ -204,6 +235,12 @@ class GameScene extends Phaser.Scene {
                     // Check if puzzle is solved (no crossings)
                     if (this.countCrossings() === 0) {
                         this.solved = true;
+                        
+                        // Switch audio from forest rain to forest ambience
+                        this.forestRainAudio.pause();
+                        this.forestAmbienceAudio.currentTime = 0;
+                        this.forestAmbienceAudio.play().catch(err => console.log('Audio playback error:', err));
+                        
                         const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits', 
                             { 
                                 fontSize: '48px', 
