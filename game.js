@@ -26,18 +26,18 @@ class GameScene extends Phaser.Scene {
         this.selectedOrb = null; // Currently selected orb for swapping
         this.isAnimating = false; // Flag to prevent actions during animation
         this.solved = false; // Flag to indicate if puzzle is solved
-        //window.audioStarted = false; // Flag to track if background music has started
+        //window.audioStarted = false; // Flag to track if background music has started -- we want this undefined until chrome has permissions to play audio
         this.gameStarted = false; // Flag to track if game has started
 
         // Store audio element references
         const forestRainAudio = document.getElementById('forestRain');
         const forestAmbienceAudio = document.getElementById('forestAmbience');
-        
+
         // Ensure only forest rain plays initially
         forestAmbienceAudio.pause();
         forestAmbienceAudio.currentTime = 0;
         forestRainAudio.currentTime = 0;
-        
+
         this.forestRainAudio = forestRainAudio;
         this.forestAmbienceAudio = forestAmbienceAudio;
 
@@ -49,7 +49,7 @@ class GameScene extends Phaser.Scene {
             this.gameStarted = true;
             window.audioStarted = true;
             this.forestRainAudio.play().catch(err => console.log('Audio playback error:', err));
-            
+
         });
         console.log("about to start audio?", window.audioStarted);
         if (window.audioStarted === true) {
@@ -204,7 +204,7 @@ class GameScene extends Phaser.Scene {
         console.log("onOrbClick triggered");
         if (this.solved) return; // Prevent actions after solved
         if (this.isAnimating) return; // Prevent actions during animation
-        
+
         console.log("Orb clicked: ", gameObject.orb);
         if (this.selectedOrb === null) {
             // No orb selected: select this one
@@ -235,19 +235,19 @@ class GameScene extends Phaser.Scene {
                     // Check if puzzle is solved (no crossings)
                     if (this.countCrossings() === 0) {
                         this.solved = true;
-                        
+
                         // Switch audio from forest rain to forest ambience
                         this.forestRainAudio.pause();
                         this.forestAmbienceAudio.currentTime = 0;
                         this.forestAmbienceAudio.play().catch(err => console.log('Audio playback error:', err));
-                        
-                        const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits', 
-                            { 
-                                fontSize: '48px', 
-                                fill: '#3771B8', 
-                                backgroundColor: '#000000', 
-                                fontFamily : '"Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif'
-                             }).setOrigin(0.5);
+
+                        const solvedText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'You have saved the spirits',
+                            {
+                                fontSize: '48px',
+                                fill: '#3771B8',
+                                backgroundColor: '#000000',
+                                fontFamily: '"Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif'
+                            }).setOrigin(0.5);
                         solvedText.setDepth(10); // Above all
                         this.input.on('pointerdown', () => window.restartGame(), this);
                     }
@@ -435,7 +435,7 @@ window.restartGame = function () {
 
 
 //html ui code
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const maskInput = document.getElementById('masks');
     const maskCount = document.getElementById('maskCount');
 
@@ -444,11 +444,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     maskInput.addEventListener('input', () => {
         let maxCycles = Math.floor(maskInput.value / 3);
-        
+
         // console.log("Max cycles set to: " + maxCycles);
         // console.log("Current cycles value: " + cyclesInput.value);
         // console.warn("update should happen? " ,(cyclesInput.value > maxCycles));
-        
+
         maskCount.textContent = maskInput.value;
         cyclesInput.max = maxCycles;
         cyclesCount.textContent = cyclesInput.value;
@@ -457,5 +457,5 @@ document.addEventListener("DOMContentLoaded", function() {
 
     cyclesInput.addEventListener('input', () => {
         cyclesCount.textContent = cyclesInput.value;
-    }); 
+    });
 });
